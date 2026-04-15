@@ -4,6 +4,11 @@ import {ArrowRight, ArrowUpRight, Clock, Layers} from "lucide-react";
 import Button from "../../components/ui/Button";
 
 
+/**
+ * Provide metadata for the home route.
+ *
+ * @returns An array of meta objects for the route containing a `title` and a `description` entry
+ */
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "New React Router App" },
@@ -11,6 +16,13 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+/**
+ * Renders the Home page UI including the hero, upload area, and projects listing.
+ *
+ * The upload control navigates to a visualizer route with a generated id when an upload completes.
+ *
+ * @returns The React element representing the Home page.
+ */
 export default function Home() {
   return (
     <div className="home">
