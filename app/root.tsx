@@ -67,7 +67,7 @@ export default function App() {
             });
 
             return !!user;
-        } catch {
+        }   catch {
             setAuthState(DEFAULT_AUTH_STATE);
             return false;
         }
@@ -83,7 +83,7 @@ export default function App() {
     }
 
     const signOut = async  () => {
-      puterSignOut();
+      await puterSignOut();
       return await refreshAuth();
     }
 
@@ -91,7 +91,7 @@ export default function App() {
   return (
      <main className="min-h-screen bg-background text-foreground relative z-10">
         <Outlet
-            context={{...authState, refreshAuth, signIn, signOut }}
+            context={{...authState, refreshAuth, signIn, signOut } satisfies AuthContext}
         />;
      </main>
   );
