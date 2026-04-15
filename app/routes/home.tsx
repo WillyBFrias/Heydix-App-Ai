@@ -18,6 +18,8 @@ export default function Home() {
     const handleUploadComplete = async (base64Image: string) => {
         const newId = Date.now().toString();
 
+        localStorage.setItem(newId, base64Image);
+
         navigate(`/visualizer/${newId}`)
 
         return true;

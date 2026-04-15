@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, {useEffect, useRef, useState} from "react";
 import { useOutletContext } from "react-router";
 import { CheckCircle2, ImageIcon, UploadIcon } from "lucide-react";
 import { PROGRESS_INTERVAL_MS, PROGRESS_STEP, REDIRECT_DELAY_MS } from "../lib/constants";
+
+
 
 interface UploadProps {
     onComplete: (base64: string) => void;
@@ -11,8 +13,17 @@ const Upload = ({ onComplete }: UploadProps) => {
     const [file, setFile] = useState<File | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [progress, setProgress] = useState(0);
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const timeOutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const { isSignedIn } = useOutletContext<AuthContext>();
+
+    useEffect(() => {
+        return () => {
+            if(intervalRef.current) clearInterval(intervalRef.current);
+            if(timeOutRef.current) clearTimeout(timeOutRef.current);
+        };
+    }, []);
 
     const processFile = (file: File) => {
         if (!isSignedIn) return;
@@ -21,26 +32,26 @@ const Upload = ({ onComplete }: UploadProps) => {
         setProgress(0);
 
         const reader = new FileReader();
-
+        reader.onerror = () => {
+            setFile(null);
+            setProgress(0);
+        };
         reader.onload = () => {
             const base64 = reader.result as string;
 
-            const interval = setInterval(() => {
+            intervalRef.current = setInterval(() => {
                 setProgress((prev) => {
                     if (prev >= 100) {
-                        clearInterval(interval);
-
-                        setTimeout(() => {
-                            onComplete(base64);
+                        clearInterval(intervalRef.current!);
+                        timeOutRef.current = setTimeout(() => {
+                            onComplete?.(base64);
                         }, REDIRECT_DELAY_MS);
-
                         return 100;
                     }
                     return prev + PROGRESS_STEP;
                 });
             }, PROGRESS_INTERVAL_MS);
         };
-
         reader.readAsDataURL(file);
     };
 
