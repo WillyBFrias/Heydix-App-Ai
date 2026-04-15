@@ -81,7 +81,8 @@ const Upload = ({ onComplete }: UploadProps) => {
         if (!isSignedIn) return;
 
         const selectedFile = e.target.files?.[0];
-        if (selectedFile) {
+        const allowedTypes = ['image/jpeg', 'image/png'];
+        if (selectedFile && allowedTypes.includes(selectedFile.type)) {
             processFile(selectedFile);
         }
     };
