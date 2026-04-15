@@ -31,7 +31,7 @@ const Navbar = () => {
             <Box className="Logo"/>
 
             <span className="name">
-              Diceya
+              Heydix
             </span>
           </div>
 
