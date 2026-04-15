@@ -1,110 +1,109 @@
-import Navbar from "../../components/Navbar";
 import type { Route } from "./+types/home";
+import Navbar from "../../components/Navbar";
 import {ArrowRight, ArrowUpRight, Clock, Layers} from "lucide-react";
 import Button from "../../components/ui/Button";
+import Upload  from "../../components/Upload";
+import {useNavigate} from "react-router";
 
-
-/**
- * Provide metadata for the home route.
- *
- * @returns An array of meta objects for the route containing a `title` and a `description` entry
- */
 export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
-  ];
+    return [
+        { title: "New React Router App" },
+        { name: "description", content: "Welcome to React Router!" },
+    ];
 }
 
-/**
- * Renders the Home page UI including the hero, upload area, and projects listing.
- *
- * The upload control navigates to a visualizer route with a generated id when an upload completes.
- *
- * @returns The React element representing the Home page.
- */
 export default function Home() {
-  return (
-    <div className="home">
-      <Navbar />
+    const navigate = useNavigate();
 
-      <section className="hero">
-          <div className="announce">
-              <div className="dot">
-                  <div className="pulse"></div>
-              </div>
+    const handleUploadComplete = async (base64Image: string) => {
+        const newId = Date.now().toString();
 
-              <p>Introducing Heydix 2.6</p>
-          </div>
+        navigate(`/visualizer/${newId}`)
 
-          <h1>Build more, in less time. it stops being complex and becomes natural: fast, smart and frictionless , With Heydix</h1>
+        return true;
+    }
 
-          <p className="subtitle">Heydix transforms architectural design with AI, allowing you to visualize, render and deliver projects faster, accurately and effortlessly.</p>
+    return (
+        <div className="home">
+            <Navbar />
 
-          <div className="actions">
-              <a href="#upload" className="cta">
-                  Start Building <ArrowRight
-                    className="icon" />
-              </a>
+            <section className="hero">
+                <div className="announce">
+                    <div className="dot">
+                        <div className="pulse"></div>
+                    </div>
 
-              <Button variant="outline" size="lg" className="demo">Watch Demo</Button>
-          </div>
+                    <p>Introducing Heydix 2.6</p>
+                </div>
 
-          <div id="upload" className="upload-shell">
-              <div className="grid-overlay" />
+                <h1>Build more, in less time. it stops being complex and becomes natural: fast, smart and frictionless , With Heydix</h1>
 
-              <div className="upload-card">
-                  <div className="upload-head">
-                      <div className="upload-icon">
-                          <Layers className="icon" />
-                      </div>
+                <p className="subtitle">Heydix transforms architectural design with AI, allowing you to visualize, render and deliver projects faster, accurately and effortlessly.</p>
 
-                      <h3>Upload your floor plan</h3>
-                      <p>Supports JPG, PNG, formats up to 10MB</p>
-                  </div>
+                <div className="actions">
+                    <a href="#upload" className="cta">
+                        Start Building <ArrowRight
+                        className="icon" />
+                    </a>
 
-                  <p>Upload images</p>
-              </div>
-          </div>
-      </section>
+                    <Button variant="outline" size="lg" className="demo">Watch Demo</Button>
+                </div>
 
-      <section className="projects">
-          <div className="section-inner">
-              <div className="section-head">
-                  <div className="copy">
-                      <h2>Projects</h2>
-                      <p>Your creations and the inspiration of the community, together in one place.</p>
-                  </div>
-              </div>
+                <div id="upload" className="upload-shell">
+                    <div className="grid-overlay" />
 
-              <div className="projects-grid">
-                  <div className="project-card group">
-                      <div className="preview">
-                          <img src="https://roomify-mlhuk267-dfwu1i.puter.site/projects/1770803585402/rendered.png" alt="Project"/>
+                    <div className="upload-card">
+                        <div className="upload-head">
+                            <div className="upload-icon">
+                                <Layers className="icon" />
+                            </div>
 
-                          <div className="badge">
-                                <span>Community</span>
-                          </div>
-                      </div>
+                            <h3>Upload your floor plan</h3>
+                            <p>Supports JPG, PNG, formats up to 10MB</p>
+                        </div>
 
-                      <div className="card-body">
-                          <div>
-                              <h3>Projects Manhattan</h3>
+                        <Upload onComplete={handleUploadComplete} />
+                    </div>
+                </div>
+            </section>
 
-                              <div className="meta">
-                                  <Clock size={12} />
-                                  <span>{new Date('01.01.2027').toLocaleDateString()}</span>
-                                  <span>By Js Mastery</span>
-                              </div>
-                          </div>
-                          <div className="arrow">
-                              <ArrowUpRight size={18} />
-                          </div>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </section>
-    </div>
-  )
+            <section className="projects">
+                <div className="section-inner">
+                    <div className="section-head">
+                        <div className="copy">
+                            <h2>Projects</h2>
+                            <p>Your creations and the inspiration of the community, together in one place.</p>
+                        </div>
+                    </div>
+
+                    <div className="projects-grid">
+                        <div className="project-card group">
+                            <div className="preview">
+                                <img src="https://roomify-mlhuk267-dfwu1i.puter.site/projects/1770803585402/rendered.png" alt="Project"/>
+
+                                <div className="badge">
+                                    <span>Community</span>
+                                </div>
+                            </div>
+
+                            <div className="card-body">
+                                <div>
+                                    <h3>Projects Manhattan</h3>
+
+                                    <div className="meta">
+                                        <Clock size={12} />
+                                        <span>{new Date('01.01.2027').toLocaleDateString()}</span>
+                                        <span>By Js Mastery</span>
+                                    </div>
+                                </div>
+                                <div className="arrow">
+                                    <ArrowUpRight size={18} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    )
 }

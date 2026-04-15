@@ -31,7 +31,7 @@ const Upload = ({ onComplete }: UploadProps) => {
                         clearInterval(interval);
 
                         setTimeout(() => {
-                            onComplete(base64); // ✅ ahora usa la prop correctamente
+                            onComplete(base64);
                         }, REDIRECT_DELAY_MS);
 
                         return 100;
@@ -60,8 +60,8 @@ const Upload = ({ onComplete }: UploadProps) => {
         if (!isSignedIn) return;
 
         const droppedFile = e.dataTransfer.files[0];
-
-        if (droppedFile && droppedFile.type.startsWith("image/")) {
+        const allowedTypes = ['image/jpeg', 'image/png'];
+        if (droppedFile && allowedTypes.includes(droppedFile.type)) {
             processFile(droppedFile);
         }
     };
