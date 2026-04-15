@@ -51,6 +51,8 @@ const DEFAULT_AUTH_STATE: AuthState = {
   isSignedIn: false,
   userName: null,
   userId: null,
+  signIn: async () => false,
+  signOut: async () => false,
 }
 
 export default function App() {
@@ -64,6 +66,8 @@ export default function App() {
               isSignedIn: !!user,
               userName: user?.username || null,
               userId: user?.uuid || null,
+              signIn,
+              signOut,
             });
 
             return !!user;

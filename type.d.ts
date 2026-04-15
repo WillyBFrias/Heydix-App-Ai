@@ -2,6 +2,8 @@ interface AuthState {
     isSignedIn: boolean;
     userName: string | null,
     userId: string | null,
+    signIn: () => Promise<boolean>;
+    signOut: () => Promise<boolean>;
 }
 
 type AuthContext = {
