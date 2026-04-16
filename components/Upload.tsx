@@ -6,7 +6,8 @@ import { PROGRESS_INTERVAL_MS, PROGRESS_STEP, REDIRECT_DELAY_MS } from "../lib/c
 
 
 interface UploadProps {
-    onComplete: (base64: string) => void;
+    onComplete: (base64File: string) => Promise<boolean | void> | boolean | void;
+    className?: string;
 }
 
 const Upload = ({ onComplete }: UploadProps) => {
@@ -18,16 +19,19 @@ const Upload = ({ onComplete }: UploadProps) => {
 
     const { isSignedIn } = useOutletContext<AuthContext>();
 
+    const cleanup = () => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        if (timeOutRef.current) clearTimeout(timeOutRef.current);
+    };
+
     useEffect(() => {
-        return () => {
-            if(intervalRef.current) clearInterval(intervalRef.current);
-            if(timeOutRef.current) clearTimeout(timeOutRef.current);
-        };
+        return cleanup;
     }, []);
 
     const processFile = (file: File) => {
         if (!isSignedIn) return;
 
+        cleanup();
         setFile(file);
         setProgress(0);
 
@@ -42,7 +46,7 @@ const Upload = ({ onComplete }: UploadProps) => {
             intervalRef.current = setInterval(() => {
                 setProgress((prev) => {
                     if (prev >= 100) {
-                        clearInterval(intervalRef.current!);
+                        if (intervalRef.current) clearInterval(intervalRef.current);
                         timeOutRef.current = setTimeout(() => {
                             onComplete?.(base64);
                         }, REDIRECT_DELAY_MS);
