@@ -16,10 +16,17 @@ const Upload = ({ onComplete }: UploadProps) => {
     const [progress, setProgress] = useState(0);
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const timeOutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const readerRef = useRef<FileReader | null>(null);
 
     const { isSignedIn } = useOutletContext<AuthContext>();
 
     const cleanup = () => {
+        if (readerRef.current?.readyState === FileReader.LOADING) {
+                readerRef.current.onload = null;
+                readerRef.current.onerror = null;
+                readerRef.current.abort();
+            }
+        readerRef.current = null;
         if (intervalRef.current) clearInterval(intervalRef.current);
         if (timeOutRef.current) clearTimeout(timeOutRef.current);
     };
@@ -36,6 +43,7 @@ const Upload = ({ onComplete }: UploadProps) => {
         setProgress(0);
 
         const reader = new FileReader();
+        readerRef.current = reader;
         reader.onerror = () => {
             setFile(null);
             setProgress(0);
@@ -50,7 +58,7 @@ const Upload = ({ onComplete }: UploadProps) => {
                         timeOutRef.current = setTimeout(async () => {
                             try {
                                 const result = await onComplete?.(base64);
-                                if (!result) {
+                                if (result === false) {
                                     cleanup();
                                     setFile(null);
                                     setProgress(0);

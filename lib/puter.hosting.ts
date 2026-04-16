@@ -36,8 +36,10 @@ export const uploadImageToHosting = async ({ hosting, url, projectId, label } :
         if(isHostedUrl(url)) return { url };
         
         try {
-            const resolved = label === "rendered" ? await  imageUrlToPngBlob(url).then((blob) => blob ? {
-                blob, contentType: 'image/png' }: null) : await  fetchBlobFromUrl(url);
+            const pngBlob = label === "rendered" ? await imageUrlToPngBlob(url) : null;
+            const resolved = pngBlob
+                ? { blob: pngBlob, contentType: "image/png" }
+                : await fetchBlobFromUrl(url);
 
             if(!resolved) return null;
 
