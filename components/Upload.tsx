@@ -47,8 +47,20 @@ const Upload = ({ onComplete }: UploadProps) => {
                 setProgress((prev) => {
                     if (prev >= 100) {
                         if (intervalRef.current) clearInterval(intervalRef.current);
-                        timeOutRef.current = setTimeout(() => {
-                            onComplete?.(base64);
+                        timeOutRef.current = setTimeout(async () => {
+                            try {
+                                const result = await onComplete?.(base64);
+                                if (!result) {
+                                    cleanup();
+                                    setFile(null);
+                                    setProgress(0);
+                                }
+                            } catch (error) {
+                                console.error("Upload failed:", error);
+                                cleanup();
+                                setFile(null);
+                                setProgress(0);
+                            }
                         }, REDIRECT_DELAY_MS);
                         return 100;
                     }
