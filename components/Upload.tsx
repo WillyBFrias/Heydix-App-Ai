@@ -6,7 +6,8 @@ import { PROGRESS_INTERVAL_MS, PROGRESS_STEP, REDIRECT_DELAY_MS } from "../lib/c
 
 
 interface UploadProps {
-    onComplete: (base64: string) => void;
+    onComplete: (base64File: string) => Promise<boolean | void> | boolean | void;
+    className?: string;
 }
 
 const Upload = ({ onComplete }: UploadProps) => {
@@ -15,23 +16,34 @@ const Upload = ({ onComplete }: UploadProps) => {
     const [progress, setProgress] = useState(0);
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const timeOutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const readerRef = useRef<FileReader | null>(null);
 
     const { isSignedIn } = useOutletContext<AuthContext>();
 
+    const cleanup = () => {
+        if (readerRef.current?.readyState === FileReader.LOADING) {
+                readerRef.current.onload = null;
+                readerRef.current.onerror = null;
+                readerRef.current.abort();
+            }
+        readerRef.current = null;
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        if (timeOutRef.current) clearTimeout(timeOutRef.current);
+    };
+
     useEffect(() => {
-        return () => {
-            if(intervalRef.current) clearInterval(intervalRef.current);
-            if(timeOutRef.current) clearTimeout(timeOutRef.current);
-        };
+        return cleanup;
     }, []);
 
     const processFile = (file: File) => {
         if (!isSignedIn) return;
 
+        cleanup();
         setFile(file);
         setProgress(0);
 
         const reader = new FileReader();
+        readerRef.current = reader;
         reader.onerror = () => {
             setFile(null);
             setProgress(0);
@@ -42,9 +54,21 @@ const Upload = ({ onComplete }: UploadProps) => {
             intervalRef.current = setInterval(() => {
                 setProgress((prev) => {
                     if (prev >= 100) {
-                        clearInterval(intervalRef.current!);
-                        timeOutRef.current = setTimeout(() => {
-                            onComplete?.(base64);
+                        if (intervalRef.current) clearInterval(intervalRef.current);
+                        timeOutRef.current = setTimeout(async () => {
+                            try {
+                                const result = await onComplete?.(base64);
+                                if (result === false) {
+                                    cleanup();
+                                    setFile(null);
+                                    setProgress(0);
+                                }
+                            } catch (error) {
+                                console.error("Upload failed:", error);
+                                cleanup();
+                                setFile(null);
+                                setProgress(0);
+                            }
                         }, REDIRECT_DELAY_MS);
                         return 100;
                     }

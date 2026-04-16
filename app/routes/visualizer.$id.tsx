@@ -1,32 +1,22 @@
-import { useParams } from "react-router";
-import { useEffect, useState } from "react";
-import Navbar from "../../components/Navbar";
+import {useLocation} from "react-router";
 
 const VisualizerId = () => {
-    const { id } = useParams();
-    const [image, setImage] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (id) {
-            const storedImage = localStorage.getItem(id);
-            if (storedImage) {
-                setImage(storedImage);
-            }
-        }
-    }, [id]);
+    const location = useLocation();
+    const { initialImage, name } = location.state || {};
 
     return (
-        <div className="visualizer-page">
-            <Navbar />
-            <div className="content">
-                {image ? (
-                    <img src={image} alt="Uploaded Floor Plan" style={{ maxWidth: "100%", height: "auto" }} />
-                ) : (
-                    <p>Loading image...</p>
+        <section>
+            <h1>{ name || 'Untitled Project'}</h1>
+
+            <div className="visualizer">
+                {initialImage && (
+                    <div className="image-container">
+                        <h2>Source Image</h2>
+                        <img src={initialImage} alt="source" />
+                    </div>
                 )}
             </div>
-        </div>
-    );
-};
-
+        </section>
+    )
+}
 export default VisualizerId;
