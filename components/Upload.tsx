@@ -50,7 +50,6 @@ const Upload = ({ onComplete }: UploadProps) => {
         };
         reader.onload = () => {
             const base64 = reader.result as string;
-
             intervalRef.current = setInterval(() => {
                 setProgress((prev) => {
                     if (prev >= 100) {
