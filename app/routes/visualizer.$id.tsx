@@ -4,6 +4,7 @@ import {generate3DView} from "../../lib/ai.action";
 import {Box, Download, RefreshCcw, Share2, X} from "lucide-react";
 import Button from "../../components/ui/Button";
 import {createProject, getProjectById} from "../../lib/puter.action";
+import {ReactCompareSlider, ReactCompareSliderImage} from "react-compare-slider";
 
 const VisualizerId = () => {
     const { id } = useParams();
@@ -19,6 +20,45 @@ const VisualizerId = () => {
     const [currentImage, setCurrentImage] = useState<string | null>(null);
 
     const handleBack = () => navigate('/');
+
+
+    const isSafeExportUrl = (value: string) => {
+        if (value.startsWith("data:image/") || value.startsWith("blob:")) return true;
+        try {
+            const parsed = new URL(value, window.location.origin);
+            return parsed.protocol === "https:" || parsed.protocol === "http:";
+        } catch {
+            return false;
+        }
+    };
+
+    const handleExport = async () => {
+        if (!currentImage || !isSafeExportUrl(currentImage)) return;
+
+        try {
+            const response = await fetch(currentImage, { mode: 'cors' });
+            if (!response.ok) throw new Error("Failed to fetch image");
+
+            const blob = await response.blob();
+            let ext = "bin";
+            if (blob.type === "image/png") ext = "png";
+            else if (blob.type === "image/jpeg") ext = "jpg";
+            else if (blob.type === "image/webp") ext = "webp";
+            else if (blob.type.includes("/")) ext = blob.type.split("/").pop() || "bin";
+
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `heydix-render-${id}.${ext}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Export failed: ", error);
+            alert("Could not export image. Please try again.");
+        }
+    }
 
     const runGeneration = async  (item: DesignItem) => {
         if(!id || !item.sourceImage) return;
@@ -57,8 +97,9 @@ const VisualizerId = () => {
         let isMounted = true;
 
         const loadProject = async () => {
-            if (!id) {
+            if (!id || id === "undefined") {
                 setIsProjectLoading(false);
+                navigate("/");
                 return;
             }
 
@@ -67,6 +108,12 @@ const VisualizerId = () => {
             const fetchedProject = await getProjectById({ id });
 
             if (!isMounted) return;
+
+            if (!fetchedProject) {
+                console.error("Project not found, redirecting home...");
+                navigate("/");
+                return;
+            }
 
             setProject(fetchedProject);
             setCurrentImage(fetchedProject?.renderedImage || null);
@@ -124,7 +171,7 @@ const VisualizerId = () => {
                         <div className="panel-actions">
                             <Button
                                 size="sm"
-                                onClick={()=> {}}
+                                onClick={handleExport}
                                 className="export"
                                 disabled={!currentImage}
                             >
@@ -159,6 +206,36 @@ const VisualizerId = () => {
                         )}
                     </div>
 
+                </div>
+
+                <div className="panel compare">
+                    <div className="panel-header">
+                        <div className="panel-meta">
+                            <p>Comparison</p>
+                            <h3>Before and After</h3>
+                        </div>
+                        <div className="hint">Drag to compare</div>
+                    </div>
+                    <div className="compare-stage">
+                        {project?.sourceImage && (currentImage || project?.renderedImage) ? (
+                            <ReactCompareSlider
+                                defaultValue={50}
+                                style={{ width: '100%', height: 'auto' }}
+                                itemOne={
+                                    <ReactCompareSliderImage src={project?.sourceImage || undefined} alt="before" className="compare-img" />
+                                }
+                                itemTwo={
+                                    <ReactCompareSliderImage src={currentImage ?? project?.renderedImage ?? undefined} alt="after" className="compare-img" />
+                                }
+                            />
+                        ) : (
+                            <div className="compare-fallback">
+                                {project?.sourceImage && (
+                                    <img src={project.sourceImage} alt="Before" className="compare-img" />
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </section>
         </div>

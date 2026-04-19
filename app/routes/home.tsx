@@ -32,6 +32,7 @@ export default function Home() {
                 timestamp: Date.now()
             }
 
+            console.debug("Saving new project", { id: newItem.id, name: newItem.name });
             const saved = await createProject({ item: newItem, visibility: 'private' });
 
             if(!saved) {
@@ -39,6 +40,7 @@ export default function Home() {
                 return false;
             }
 
+            console.debug("Project saved successfully", { id: saved.id });
             setProjects((prev) => [saved, ...prev]);
 
             navigate(`/visualizer/${newId}`, {
@@ -118,34 +120,46 @@ export default function Home() {
                     </div>
 
                     <div className="projects-grid">
-                        {projects.map(({id, name, renderedImage, sourceImage, timestamp}) => (
-                            <div key={id} className="project-card group" onClick={() => navigate(`/visualizer/${id}`)}>
-                                <div className="preview">
-                                    <img
-                                        src={renderedImage || sourceImage}
-                                        alt="Project"/>
+                        {projects.map((project, index) => {
+                            const {id, name, renderedImage, sourceImage, timestamp} = project;
+                            const key = id || (timestamp && name ? `project-${timestamp}-${name}` : `project-fallback-${index}`);
+                            return (
+                                <div
+                                    key={key}
+                                    className="project-card group"
+                                    onClick={() => {
+                                        if (id) {
+                                            navigate(`/visualizer/${id}`);
+                                        }
+                                    }}
+                                >
+                                    <div className="preview">
+                                        <img
+                                            src={renderedImage || sourceImage}
+                                            alt="Project"/>
 
-                                    <div className="badge">
-                                        <span>Community</span>
-                                    </div>
-                                </div>
-
-                                <div className="card-body">
-                                    <div>
-                                        <h3>{name}</h3>
-
-                                        <div className="meta">
-                                            <Clock size={12}/>
-                                            <span>{new Date(timestamp).toLocaleDateString()}</span>
-                                            <span>By Js Mastery</span>
+                                        <div className="badge">
+                                            <span>Community</span>
                                         </div>
                                     </div>
-                                    <div className="arrow">
-                                        <ArrowUpRight size={18}/>
+
+                                    <div className="card-body">
+                                        <div>
+                                            <h3>{name}</h3>
+
+                                            <div className="meta">
+                                                <Clock size={12}/>
+                                                <span>{timestamp ? new Date(timestamp).toLocaleDateString() : 'Unknown date'}</span>
+                                                <span>By devs</span>
+                                            </div>
+                                        </div>
+                                        <div className="arrow">
+                                            <ArrowUpRight size={18}/>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             </section>
