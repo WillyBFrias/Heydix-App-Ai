@@ -18,10 +18,16 @@ A modern, production-ready template for building full-stack React applications u
 
 ### Installation
 
-Install the dependencies:
+1. Install the dependencies:
 
 ```bash
 npm install
+```
+
+2. Copy `.env.local.example` to `.env.local` and update the environment variables:
+
+```bash
+cp .env.local.example .env.local
 ```
 
 ### Development
