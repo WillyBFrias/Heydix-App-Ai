@@ -32,7 +32,7 @@ export default function Home() {
                 timestamp: Date.now()
             }
 
-            console.log("Saving new project:", newItem);
+            console.debug("Saving new project", { id: newItem.id, name: newItem.name });
             const saved = await createProject({ item: newItem, visibility: 'private' });
 
             if(!saved) {
@@ -40,7 +40,7 @@ export default function Home() {
                 return false;
             }
 
-            console.log("Project saved successfully:", saved);
+            console.debug("Project saved successfully", { id: saved.id });
             setProjects((prev) => [saved, ...prev]);
 
             navigate(`/visualizer/${newId}`, {
@@ -124,7 +124,15 @@ export default function Home() {
                             const {id, name, renderedImage, sourceImage, timestamp} = project;
                             const key = id || (timestamp && name ? `project-${timestamp}-${name}` : `project-fallback-${index}`);
                             return (
-                                <div key={key} className="project-card group" onClick={() => navigate(`/visualizer/${id}`)}>
+                                <div
+                                    key={key}
+                                    className="project-card group"
+                                    onClick={() => {
+                                        if (id) {
+                                            navigate(`/visualizer/${id}`);
+                                        }
+                                    }}
+                                >
                                     <div className="preview">
                                         <img
                                             src={renderedImage || sourceImage}

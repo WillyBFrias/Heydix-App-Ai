@@ -55,8 +55,11 @@ export const uploadImageToHosting = async ({ hosting, url, projectId, label } :
             try {
                 await puter.fs.mkdir(dir, { createMissingParents: true });
             } catch (mkdirError) {
-                // Ignore if directory already exists
-                console.log(`Note: mkdir ${dir} potentially already exists or had an issue: ${mkdirError}`);
+                const message = mkdirError instanceof Error ? mkdirError.message : String(mkdirError);
+                // Ignore only "already exists"-style failures
+                if (!/already exists|EEXIST/i.test(message)) {
+                    throw mkdirError;
+                }
             }
             await puter.fs.write(filePath, uploadFile);
 

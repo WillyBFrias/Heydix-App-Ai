@@ -70,6 +70,7 @@ const VisualizerId = () => {
         const loadProject = async () => {
             if (!id || id === "undefined") {
                 setIsProjectLoading(false);
+                navigate("/");
                 return;
             }
 
