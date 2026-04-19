@@ -18,7 +18,7 @@ export const getCorrectUser = async  () => {
 export const createProject = async ({ item, visibility = "private" }: CreateProjectParams):
     Promise<DesignItem | null | undefined> => {
         if(!PUTER_WORKER_URL) {
-            console.warn('Missing VITE_PUTER_WORKER_URL; skip history fetch;');
+            console.warn('Missing VITE_PUTER_WORKER_URL; skipping project save.');
             return null;
         }
 
@@ -90,7 +90,7 @@ export const getProjects = async () => {
         const response = await  puter.workers.exec(`${PUTER_WORKER_URL}/api/projects/list`, { method: 'GET' } );
 
         if (!response.ok) {
-            console.error('Failed to fetch history', await response.text());
+            console.error('Failed to fetch projects', await response.text());
             return [];
         }
 
