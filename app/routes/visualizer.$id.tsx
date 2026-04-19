@@ -32,15 +32,32 @@ const VisualizerId = () => {
         }
     };
 
-    const handleExport = () => {
+    const handleExport = async () => {
         if (!currentImage || !isSafeExportUrl(currentImage)) return;
 
-        const link = document.createElement('a');
-        link.href = currentImage;
-        link.download = `heydix-render-${id}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        try {
+            const response = await fetch(currentImage, { mode: 'cors' });
+            if (!response.ok) throw new Error("Failed to fetch image");
+
+            const blob = await response.blob();
+            let ext = "bin";
+            if (blob.type === "image/png") ext = "png";
+            else if (blob.type === "image/jpeg") ext = "jpg";
+            else if (blob.type === "image/webp") ext = "webp";
+            else if (blob.type.includes("/")) ext = blob.type.split("/").pop() || "bin";
+
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `heydix-render-${id}.${ext}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Export failed: ", error);
+            alert("Could not export image. Please try again.");
+        }
     }
 
     const runGeneration = async  (item: DesignItem) => {
