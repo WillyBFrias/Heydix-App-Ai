@@ -20,8 +20,20 @@ const VisualizerId = () => {
     const [currentImage, setCurrentImage] = useState<string | null>(null);
 
     const handleBack = () => navigate('/');
+
+
+    const isSafeExportUrl = (value: string) => {
+        if (value.startsWith("data:image/") || value.startsWith("blob:")) return true;
+        try {
+            const parsed = new URL(value, window.location.origin);
+            return parsed.protocol === "https:" || parsed.protocol === "http:";
+        } catch {
+            return false;
+        }
+    };
+
     const handleExport = () => {
-        if (!currentImage) return;
+        if (!currentImage || !isSafeExportUrl(currentImage)) return;
 
         const link = document.createElement('a');
         link.href = currentImage;
