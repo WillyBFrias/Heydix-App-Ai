@@ -52,7 +52,12 @@ export const uploadImageToHosting = async ({ hosting, url, projectId, label } :
                 type: contentType,
             });
 
-            await puter.fs.mkdir(dir, { createMissingParents: true });
+            try {
+                await puter.fs.mkdir(dir, { createMissingParents: true });
+            } catch (mkdirError) {
+                // Ignore if directory already exists
+                console.log(`Note: mkdir ${dir} potentially already exists or had an issue: ${mkdirError}`);
+            }
             await puter.fs.write(filePath, uploadFile);
 
             const hostedUrl = getHostedUrl({ subdomain: hosting.subdomain }, filePath);

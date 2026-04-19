@@ -95,6 +95,7 @@ export const getProjects = async () => {
         }
 
         const data = (await response.json()) as { projects?: DesignItem[] | null };
+        console.log("Fetched projects list:", data?.projects);
         return Array.isArray(data?.projects) ? data?.projects : [];
     } catch (e) {
         console.error('Failed to get projects', e);
@@ -109,6 +110,10 @@ export const getProjectById = async ({ id }: { id: string }) => {
     }
 
     console.log("Fetching project with ID:", id);
+    if (!id || id === "undefined") {
+        console.warn("Invalid project ID provided:", id);
+        return null;
+    }
 
     try {
         const response = await puter.workers.exec(

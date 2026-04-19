@@ -95,8 +95,8 @@ const Upload = ({ onComplete }: UploadProps) => {
         if (!isSignedIn) return;
 
         const droppedFile = e.dataTransfer.files[0];
-        const allowedTypes = ['image/jpeg', 'image/png'];
-        if (droppedFile && allowedTypes.includes(droppedFile.type)) {
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        if (droppedFile && (allowedTypes.includes(droppedFile.type) || droppedFile.name.toLowerCase().endsWith('.webp'))) {
             processFile(droppedFile);
         }
     };
@@ -105,8 +105,8 @@ const Upload = ({ onComplete }: UploadProps) => {
         if (!isSignedIn) return;
 
         const selectedFile = e.target.files?.[0];
-        const allowedTypes = ['image/jpeg', 'image/png'];
-        if (selectedFile && allowedTypes.includes(selectedFile.type)) {
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        if (selectedFile && (allowedTypes.includes(selectedFile.type) || selectedFile.name.toLowerCase().endsWith('.webp'))) {
             processFile(selectedFile);
         }
     };

@@ -68,7 +68,7 @@ const VisualizerId = () => {
         let isMounted = true;
 
         const loadProject = async () => {
-            if (!id) {
+            if (!id || id === "undefined") {
                 setIsProjectLoading(false);
                 return;
             }
@@ -78,6 +78,12 @@ const VisualizerId = () => {
             const fetchedProject = await getProjectById({ id });
 
             if (!isMounted) return;
+
+            if (!fetchedProject) {
+                console.error("Project not found, redirecting home...");
+                navigate("/");
+                return;
+            }
 
             setProject(fetchedProject);
             setCurrentImage(fetchedProject?.renderedImage || null);
@@ -181,7 +187,7 @@ const VisualizerId = () => {
                         <div className="hint">Drag to compare</div>
                     </div>
                     <div className="compare-stage">
-                        {project?.sourceImage && currentImage ? (
+                        {project?.sourceImage && (currentImage || project?.renderedImage) ? (
                             <ReactCompareSlider
                                 defaultValue={50}
                                 style={{ width: '100%', height: 'auto' }}
@@ -189,7 +195,7 @@ const VisualizerId = () => {
                                     <ReactCompareSliderImage src={project?.sourceImage || undefined} alt="before" className="compare-img" />
                                 }
                                 itemTwo={
-                                    <ReactCompareSliderImage src={ currentImage || project?.renderedImage || undefined} alt="after" className="compare-img" />
+                                    <ReactCompareSliderImage src={currentImage ?? project?.renderedImage ?? undefined} alt="after" className="compare-img" />
                                 }
                             />
                         ) : (
